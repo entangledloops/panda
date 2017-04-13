@@ -1,9 +1,12 @@
 import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
+import javafx.geometry.Bounds;
+import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.layout.GridPane;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.util.Random;
@@ -11,9 +14,6 @@ import java.util.Random;
 
 public class Panda extends Application
 {
-  final static int SEED = 1;
-  final static int COLS = 6, ROWS = 5;
-
   enum Material
   {
     FIRE,
@@ -42,6 +42,14 @@ public class Panda extends Application
     }
   }
 
+  final static int WIDTH = 640, HEIGHT = 480;
+  final static int SEED = 1;
+  final static int COLS = 6, ROWS = 5;
+
+  GraphicsContext gc;
+  private Button[][] grid;
+  private Button btnTarget;
+
   @Override
   public void start(Stage primaryStage) throws Exception
   {
@@ -49,7 +57,7 @@ public class Panda extends Application
 
     final Random random = new Random(SEED);
     final GridPane gridPane = new GridPane();
-    final Button[][] buttons = new Button[COLS][ROWS];
+    grid = new Button[COLS][ROWS];
 
     for (int x = 0; x < COLS; ++x)
     {
@@ -57,15 +65,41 @@ public class Panda extends Application
       {
         final int col = x, row = y;
         final Button button = new Button( Material.values()[0].name() );
-        button.setOnAction(e -> buttons[col][row].setText( Material.find( buttons[col][row].getText() ).next().name() ));
-        buttons[x][y] = button;
+        button.setOnAction(e -> grid[col][row].setText( Material.find( grid[col][row].getText() ).next().name() ));
+        grid[x][y] = button;
         gridPane.add(button, x, y, 1, 1);
       }
     }
 
-    final Scene scene = new Scene(gridPane, 640, 480);
+    btnTarget = new Button( Material.values()[0].name() );
+    btnTarget.setOnAction(e -> btnTarget.setText( Material.find( btnTarget.getText() ).next().name() ));
+    gridPane.add(btnTarget, COLS/2-COLS/4, ROWS, COLS/2, 1);
+
+    final Button btnSolve = new Button("Solve");
+    btnSolve.setOnAction(e -> solve());
+    gridPane.add(btnSolve, COLS/2+COLS/4, ROWS, COLS/2, 1);
+
+    final Group group = new Group(gridPane);
+    final Scene scene = new Scene(group, WIDTH, HEIGHT);
+
+    final Canvas canvas = new Canvas(WIDTH, HEIGHT);
+    canvas.setMouseTransparent(true);
+    gc = canvas.getGraphicsContext2D();
+    group.getChildren().add(canvas);
+
     primaryStage.setScene(scene);
     primaryStage.show();
+  }
+
+  private void solve()
+  {
+    final Bounds bounds0 = grid[0][0].localToScene( grid[0][0].getBoundsInLocal() );
+    final Bounds bounds1 = grid[3][3].localToScene( grid[3][3].getBoundsInLocal() );
+
+    gc.setFill(Color.GREEN);
+    gc.setStroke(Color.BLUE);
+    gc.setLineWidth(3);
+    gc.strokeLine(bounds0.getMinX(), bounds0.getMinY(), bounds1.getMinX(), bounds1.getMinY());
   }
 
   public static void main(String[] args)
