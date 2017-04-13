@@ -7,6 +7,9 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.LinearGradient;
+import javafx.scene.paint.Stop;
 import javafx.stage.Stage;
 
 import java.util.Random;
@@ -93,12 +96,14 @@ public class Panda extends Application
 
   private void solve()
   {
+    gc.clearRect(0, 0, WIDTH, HEIGHT);
+    
     final Bounds bounds0 = grid[0][0].localToScene( grid[0][0].getBoundsInLocal() );
     final Bounds bounds1 = grid[3][3].localToScene( grid[3][3].getBoundsInLocal() );
 
-    gc.setFill(Color.GREEN);
-    gc.setStroke(Color.BLUE);
-    gc.setLineWidth(3);
+    gc.setFill(Color.BLACK);
+    gc.setStroke(new LinearGradient(0, 0, 1, 1, true, CycleMethod.NO_CYCLE, new Stop(0, Color.RED), new Stop(1, Color.GREEN)));
+    gc.setLineWidth(5);
     gc.strokeLine(bounds0.getMinX(), bounds0.getMinY(), bounds1.getMinX(), bounds1.getMinY());
   }
 
